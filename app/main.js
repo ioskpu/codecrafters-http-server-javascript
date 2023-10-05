@@ -36,7 +36,7 @@ const loopOnPath = (path, socket) => {
             return null;
         }
 
-        if(i! == 0 && path[i] === "/" && counter === 2){
+        if(i !== 0 && path[i] === "/" && counter === 2){
             if(temp.slice(1,) === "echo"){
                 flag = 1;
                 continue;

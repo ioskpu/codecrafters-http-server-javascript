@@ -105,11 +105,16 @@ const server = net.createServer((socket) => {
 
     if (
       parsedRequest.method === "GET" &&
-      parsedRequest.path === "/user-agent"
+      (parsedRequest.path === "/" || parsedRequest.path === "/user-agent")
     ) {
-      const userAgent = parsedRequest.headers["User-Agent"];
-      const response = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent.length}\r\n\r\n${userAgent}`;
-      socket.write(response);
+      if (parsedRequest.path === "/user-agent") {
+        const userAgent = parsedRequest.headers["User-Agent"];
+        const response = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent.length}\r\n\r\n${userAgent}`;
+        socket.write(response);
+      } else {
+        const response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 0\r\n\r\n";
+        socket.write(response);
+      }
     } else {
       const response = "HTTP/1.1 404 Not Found\r\n\r\n";
       socket.write(response);
@@ -120,3 +125,4 @@ const server = net.createServer((socket) => {
 });
 
 server.listen(4221, "localhost");
+

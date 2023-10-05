@@ -22,7 +22,8 @@ const server = net.createServer((socket) => {
   });
 
   socket.on("data", data => {
-    socket.write("HTTP/1.1 200 OK\r\n\r\n");
+    socket.read();
+    checkPath(data.toString().split("\n")[0].split(" ")[1], socket);
     socket.end();
   })
 });

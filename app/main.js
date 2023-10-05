@@ -20,7 +20,7 @@ const loopOnPath = (path, socket) => {
     //     console.log("oh no...");
     return word;
     }
-    for (let i = 0; index < path.length; index++) {
+    for (let i = 0; i < path.length; index++) {
 
         if(path[i] === "/"){
             counter++;

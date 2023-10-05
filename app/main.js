@@ -1,6 +1,7 @@
 const net = require("net");
 const { argv } = require("process");
-const { readFileSync, existsSync } = require("fs");
+//const { readFileSync, existsSync } = require("fs");
+const { readFileSync, existsSync, writeFileSync } = require("fs");
 let dir = "./";
 let prev = "";
 for (const arg of argv) {
@@ -19,10 +20,16 @@ const handleRequest = (socket) => {
         
         const reqParts = req.split("\r\n");
 
+        const body = req.split("\r\n\r\n").pop();
+
         const startLine = reqParts[0];
+
         if (!startLine) badRequest(socket);
-        const [_0, path, _1] = startLine.split(" ");
+        //const [_0, path, _1] = startLine.split(" ");
+        const [method, path, _1] = startLine.split(" ");
+
         if (!path) badRequest(socket);
+
         if (path === "/") {
             socket.write("HTTP/1.1 200 OK \r\n\r\n");
         } else if (path === "/user-agent") {
@@ -45,19 +52,31 @@ const handleRequest = (socket) => {
         
         } else if (path.startsWith("/files/")) {
             const file = dir + path.replace(/^\/files\//g, "");
-            if (existsSync(file)) {
-                const content = readFileSync(file);
-                socket.write(
-                    `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${
-                        new Blob([content]).size
-                    }\r\n\r\n${content}\r\n`,
-                );
-            } else {
-                socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+            // if (existsSync(file)) {
+            //     const content = readFileSync(file);
+            if (method == "GET") {
+                if (existsSync(file)) {
+                    const content = readFileSync(file);
+                    socket.write(
+                        `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${
+                            new Blob([content]).size
+                        }\r\n\r\n${content}\r\n`,
+                    );
+                } else {
+                    socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+                }
+            } else if (method == "POST") {
+                writeFileSync(file, body);
 
+            //     socket.write(
+            //         `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${
+            //             new Blob([content]).size
+            //         }\r\n\r\n${content}\r\n`,
+            //     );
+            // } else {
+            //     socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+            socket.write("HTTP/1.1 201 Created\r\n\r\n");
             }
-
-
         } else {
             socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
         }

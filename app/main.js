@@ -1,4 +1,14 @@
 const net = require("net");
+const { argv } = require("process");
+const { readFileSync, existsSync } = require("fs");
+let dir = "./";
+let prev = "";
+for (const arg of argv) {
+    if (prev == "--directory") dir = arg;
+    prev = arg;
+}
+1
+if (!dir.endsWith("/")) dir += "/";
 function badRequest(socket) {
     socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
     socket.end();
@@ -32,6 +42,22 @@ const handleRequest = (socket) => {
             socket.write(
                 `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length:${randomString.length}\r\n\r\n${randomString}\r\n`,
             );
+        
+        } else if (path.startsWith("/files/")) {
+            const file = dir + path.replace(/^\/files\//g, "");
+            if (existsSync(file)) {
+                const content = readFileSync(file);
+                socket.write(
+                    `HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: ${
+                        new Blob([content]).size
+                    }\r\n\r\n${content}\r\n`,
+                );
+            } else {
+                socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
+
+            }
+
+
         } else {
             socket.write("HTTP/1.1 404 Not Found\r\n\r\n");
         }

@@ -6,7 +6,7 @@ function badRequest(socket) {
 const handleRequest = (socket) => {
     return (data) => {
         const req = data.toString();
-        //const startLine = req.split("\r\n")[0];
+        
         const reqParts = req.split("\r\n");
 
         const startLine = reqParts[0];

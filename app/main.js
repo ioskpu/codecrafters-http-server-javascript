@@ -13,6 +13,7 @@ const checkPath = (path, socket) => {
         console.log("oh no...");
     }
 }
+
 // Uncomment this to pass the first stage
 const server = net.createServer((socket) => {
   socket.on("close", () => {
